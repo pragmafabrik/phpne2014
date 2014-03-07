@@ -72,9 +72,8 @@
                     <p>
                         <dl>
                             <dd>Enforce OO pattern in relational world</dd>
-                            <dd>You do not know what your ORM is telling your database</dd>
+                            <dd>You do not know what your database is doing</dd>
                             <dd>Cannot easy tune for performances</dd>
-                            <dd>Turn every known rdbms down to MySQL</dd>
                         </dl>
                     </p>
                 </section>
@@ -91,8 +90,9 @@
                     <p>
                         <dl>
                             <dd>Relational engine as entity persistence layer</dd>
-                            <dd>statically maps each entity on a table</dd>
-                            <dd>Ends up in a "<code>key =&gt; entity</code>" storage</dd>
+                            <dd>Enforcing OO paradigm in a relational engine</dd>
+                            <dd>Statically maps each entity on a table</dd>
+                            <dd>Ends up in a "<u><code>key =&gt; entity</code></u>" storage</dd>
                             <dd>Poor added value</dd>
                         <dl>
                     <p>
@@ -103,9 +103,222 @@
                         <dl>
                             <dd>Relational databases do deal with <strong>sets</strong></dd>
                             <dd>Sets are extendible tuples</dd>
-                            <dd>What you manipulate are <strong>projections</strong> of sets</dd>
-                            <dd>Tables are, in a way, just persistent sets</dd>
+                            <dd>Entities are <strong>projections</strong> of sets</dd>
+                            <dd>Tables are just named persistent sets</dd>
                         </dl>
+                    </p>
+                </section>
+                <section>
+                    <h3>What if we fit relational logic in OO ?</h3>
+                    <p><img src="images/map.png" width="75%" height="75%" /></p>
+                    <p>
+                        <dl>
+                            <dd>Sets are projected into entities</dd>
+                            <dd>Values are converted from / to the database</dd>
+                            <dd>PHP equivalents types</dd>
+                        </dl>
+                    </p>
+                </section>
+                <section>
+                    <h2>Converters and types</h2>
+                    <p><small>Postgres is awesome</small></p>
+                </section>
+                <section>
+                    <h3>Some of Postgresql's types</h3>
+                    <p>
+                      <ul style="list-style-type: none;">
+                          <li>&#10149; boolean, bitchar, bitvar</li>
+                          <li>&#10149; strings, uuid, xml, json, inet</li>
+                          <li>&#10149; numbers, timestamps with time zone, intervals</li>
+                          <li>&#10149; integer and timestamps ranges</li>
+                          <li>&#10149; point, circle, segment, box, polygon</li>
+                          <li>&#10149; HStore, LTree, ts_vector, bytea</li>
+                          <li>&#10149; custom types, objects</li>
+                          <li>&#10149; arrays of all the types above</li>
+                          <li>&#10149; <font color="red">Enter your type here</font></li>
+                      </ul>
+                    </p>
+                </section>
+                <section>
+                    <h3>Pomm's converters</h3>
+                    <p>
+                      <ul style="list-style-type: none;">
+                          <li>&#10149; boolean, <strike>bitchar, bitvar</strike></li>
+                          <li>&#10149; strings, uuid, xml, json, inet</li>
+                          <li>&#10149; numbers, timestamps with time zone, intervals</li>
+                          <li>&#10149; integer and timestamps, ranges</li>
+                          <li>&#10149; point, circle, segment, <strike>box, polygon</strike></li>
+                          <li>&#10149; HStore, LTree, ts_vector, bytea</li>
+                          <li>&#10149; custom types, objects</li>
+                          <li>&#10149; arrays of all the types above</li>
+                          <li>&#10149; <font color="red">Enter your type here</font></li>
+                      </ul>
+                    </p>
+                </section>
+                <section>
+                    <h3>But types are nothing without</h3>
+                    <h3><small>proper operators</small></h3>
+                    <p>
+                      <ul style="list-style-type: none;">
+                          <li class="fragment"><code><pre>SELECT inet '172.17.0.2' &lt;&lt;  inet '172.16.0.0/12';</pre></code></li>
+                          <li class="fragment"><code><pre>SELECT numrange(1.1,2.2) -|- numrange(2.2,3.3);</pre></code></li>
+                          <li class="fragment"><code><pre>SELECT lseg '((1,-1),(-1,1))' # lseg '((1,1),(-1,-1))';</pre></code></li>
+                          <li class="fragment"><code><pre>SELECT 'Pika chu' ~* '^p.{2}';</pre></code></li>
+                          <li class="fragment"><code><pre>SELECT 2 = ANY(ARRAY[1,2,4])</pre></code></li>
+                      </ul>
+                    </p>
+                </section>
+                <section>
+                    <h3>Use them in your where clauses</h3>
+                    <p><code><pre>$users = $this-&gt;findWhere(
+    "$* = ANY(telephones) OR birthdate &lt;@ tsrange($*, $*, '[]')", 
+    [$tel, $min_date, $max_date]
+    );</pre></code></p>
+                </section>
+                <section>
+                    <h3>Build your where clause</h3>
+                    <p><code><pre>    protected function queryOnPhoneAndBirthdate($tel, $min_age, $max_age)
+    {
+        return Where::create("$* = ANY(telephones)", [$tel])
+            -&gt;orWhere("birthdate &lt;@ tsrange($*, $*, '[]')", [$min_age, $max_age]);
+    }
+
+    public funtion findSomething($...)
+    {
+        $where = $this-&gt;queryOnPhoneAndBirthdate(...)
+            ->andWhere("activity ~* $*", [$activity]);
+
+        return $this->findWhere($where);
+    }
+                    </pre></code></p>
+                    <p>
+                      <ul style="list-style-type: none;">
+                          <li class="fragment">Binds parameters immediately</li>
+                          <li class="fragment">Manages the order for you</li>
+                          <li class="fragment">Respects logical precedence</li>
+                      </ul>
+                    </p>
+                </section>
+                <section>
+                    <h3>HStore: key =&gt; value store</h3>
+                    <p>
+                      <ul style="list-style-type: none;">
+                          <li class="fragment">Optional fields</li>
+                          <li class="fragment">I18N: <code><pre>SELECT label-&gt;en AS label FROM product</pre></code></li>
+                          <li class="fragment">Converted to PHP associative array</li>
+                      </ul>
+                    </p>
+                </section>
+                <section>
+                    <h3>XML</h3>
+                    <p>
+                      <ul style="list-style-type: none;">
+                          <li class="fragment">Native support of xpath queries</li>
+                          <li class="fragment"><code><pre>SELECT xpath('/section/p', xml '&lt;section&gt;&lt;p&gt;plop&lt;/p&gt;&lt;/section&gt;')</pre></code></li>
+                          <li class="fragment"><code>Can be useful to parse API data</code></li>
+                          <li class="fragment"><code>Proposes XSLT processing functions</code></li>
+                      </ul>
+                    </p>
+                </section>
+                <section>
+                    <h3>JSON</h3>
+                    <p>
+                      <ul style="list-style-type: none;">
+                          <li class="fragment">Native support of JSON</li>
+                          <li class="fragment"><code><pre>SELECT json_field-&gt;en AS label FROM product</pre></code></li>
+                          <li class="fragment">Converted to PHP associative array through <code>json_encode()</code></li>
+                          <li class="fragment"><code><pre>SELECT row_to_json(pika) FROM pika</pre></code></li>
+                          <li class="fragment">Converts SQL objects to JSON</li>
+                      </ul>
+                    </p>
+                </section>
+                <section>
+                    <h3>SQL object ?!?</h3>
+                    <p>
+                      <ul style="list-style-type: none;">
+                          <li class="fragment">Custom composite types</li>
+                          <li class="fragment"><code><pre>CREATE TYPE plop AS (pika varchar, chu int)</pre></code></li>
+                          <li class="fragment"><code><pre>SELECT my_plop FROM my_table</pre></code></li>
+                          <li class="fragment"><code><pre>SELECT (my_plop).pika, (my_plop).chu FROM my_table</pre></code></li>
+                          <li class="fragment">Converted to PHP objects</li>
+                          <li class="fragment"><code class="php"><pre>print_r($my_entity-&gt;my_plop);
+
+Object "plop": { "pika": "asdf", "chu": "1" }</pre></code></li>
+                          </ul>
+                      </p>
+                  </section>
+                <section>
+                    <h2>Projection system</h2>
+                </section>
+                <section>
+                    <h3>Projection : the "SELECT" statement</h3>
+                    <p>
+                    <pre>
+                      <code class="php">
+$student = $this-&gt;findByPK(['student_id' =&gt; 2]);
+/* 
+Student:
+  first_name: sam
+  last_name: socket
+  password: 32ªØ~ぜ
+  birthdate: DateTime Object
+                      </code>
+                    </pre>
+                    </p>
+                </section>
+                <section>
+                    <h3>Modifying the default projection</h3>
+                    <p>
+                    <pre>
+                      <code class="php">
+public function getSelectFields($alias = null)
+{
+    $fields = parent::getSelectFields($alias);
+    unset($fields['password']);
+    $fields['age'] = sprintf(
+        "age(%s)", 
+        $this-&gt;aliasField('birthdate', $alias)
+        );
+
+    return $fields;
+}
+                      </code>
+                    </pre>
+                    </p>
+                </section>
+                <section>
+                    <h3>Projection : the "SELECT" statement</h3>
+                    <p>
+                    <pre>
+                      <code class="php">
+$student = $this->findByPK(['student_id' =&gt; 2]);
+/* 
+SELECT first_name, last_name, birthdate, age(birthdate) ... 
+    WHERE student_id = $*
+                      </code>
+                    </pre>
+                    </p>
+                </section>
+                <section>
+                    <h3>Projection : the "RETURNING" statement</h3>
+                    <p>
+                    <pre>
+                      <code class="php">
+public function deleteController($student_id)
+{
+    $student = $this-&gt;dic['db.connection']
+        -&gt;getMapFor('\School\ClassRoom\Student')
+        -&gt;deleteByPK(['student_id' =&gt; $student_id])
+        ;
+    /* DELETE FROM student WHERE student_id = $* 
+        RETURNING first_name, last_name, ... */
+
+    if (!$student) {
+        return new Response("No such student", 404);
+    }
+                      </code>
+                    </pre>
+                    'INSERT', 'UPDATE' and 'DELETE' can also be projected
                     </p>
                 </section>
                 <section>
@@ -124,17 +337,6 @@
                 </section>
                 <section>
                     <h3>What if we fit relational logic in OO ?</h3>
-                    <p><img src="images/map.png" /></p>
-                    <p>
-                        <dl>
-                            <dd>Sets are projected into entities</dd>
-                            <dd>Values are converted from / to the database</dd>
-                            <dd>PHP equivalents types</dd>
-                        </dl>
-                    </p>
-                </section>
-                <section>
-                    <h3>What if we fit relational logic in OO ?</h3>
                     <p><img src="images/omms.png" /></p>
                     <p>
                         <dl>
@@ -144,6 +346,7 @@
                     </p>
                 </section>
             </div><!-- slides -->
+            <p><small>&nbsp;www.pomm-project.org</small></p>
 		</div>
 
 		<script src="lib/js/head.min.js"></script>
@@ -160,7 +363,7 @@
 				center: true,
 
 				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
-				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+				transition: Reveal.getQueryHash().transition || 'page', // default/cube/page/concave/zoom/linear/fade/none
 
 				// Parallax scrolling
 				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
