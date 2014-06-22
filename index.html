@@ -14,6 +14,7 @@
 
 		<link rel="stylesheet" href="css/reveal.min.css">
 		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+		<link rel="stylesheet" href="css/custom.css">
 
 		<!-- For syntax highlighting -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
@@ -68,7 +69,7 @@
                 </section>
                 <section>
                     <h3>ORM &amp; SQL</h3>
-                    <p><img src="images/orms.png" /></p>
+                    <p><img src="images/orms.png" width="60%" height="60%" /></p>
                     <p>
                         <dl>
                             <dd>Enforce OO pattern in relational world</dd>
@@ -83,7 +84,7 @@
                 </section>
                 <section>
                     <h3>How PHP developers see their data</h3>
-                    <p><img src="images/fridge.png" /></p>
+                    <p><img src="images/fridge.png" width="40%" height="40%" /></p>
                 </section>
                 <section>
                     <h3>What's wrong ?</h3>
@@ -110,7 +111,7 @@
                 </section>
                 <section>
                     <h3>What if we fit relational logic in OO ?</h3>
-                    <p><img src="images/map.png" width="75%" height="75%" /></p>
+                    <p><img src="images/map.png" width="55%" height="55%" /></p>
                     <p>
                         <dl>
                             <dd>Sets are projected into entities</dd>
@@ -120,84 +121,262 @@
                     </p>
                 </section>
                 <section>
-                    <h2>Converters and types</h2>
-                    <p><small>Postgres is awesome</small></p>
-                </section>
-                <section>
-                    <h3>Some of Postgresql's types</h3>
+                  <section>
+                      <h2>Converters and types</h2>
+                      <p><small>Postgres is awesome</small></p>
+                  </section>
+                  <section>
+                      <h3>Some of Postgresql's types</h3>
+                      <p>
+                        <ul style="list-style-type: none;">
+                            <li>&#10149; boolean, bitchar, bitvar</li>
+                            <li>&#10149; strings, uuid, xml, json, inet</li>
+                            <li>&#10149; numbers, timestamps with time zone, intervals</li>
+                            <li>&#10149; integer and timestamps ranges</li>
+                            <li>&#10149; point, circle, segment, box, polygon</li>
+                            <li>&#10149; HStore, LTree, ts_vector, bytea</li>
+                            <li>&#10149; custom types, objects</li>
+                            <li>&#10149; arrays of all the types above</li>
+                            <li>&#10149; <font color="red">Enter your type here</font></li>
+                        </ul>
+                      </p>
+                  </section>
+                  <section>
+                      <h3>Pomm's converters</h3>
+                      <p>
+                        <ul style="list-style-type: none;">
+                            <li>&#10149; boolean, <strike>bitchar, bitvar</strike></li>
+                            <li>&#10149; strings, uuid, xml, json, inet</li>
+                            <li>&#10149; numbers, timestamps with time zone, intervals</li>
+                            <li>&#10149; integer and timestamps, ranges</li>
+                            <li>&#10149; point, circle, segment, <strike>box, polygon</strike></li>
+                            <li>&#10149; HStore, LTree, ts_vector, bytea</li>
+                            <li>&#10149; custom types, objects</li>
+                            <li>&#10149; arrays of all the types above</li>
+                            <li>&#10149; <font color="red">Enter your type here</font></li>
+                        </ul>
+                      </p>
+                  </section>
+                  <section>
+                      <h3>Builtin converters</h3>
+                      <p>
+                        <ul style="list-style-type: none;">
+                          <li class="fragment">Pg <code>[t|f]</code> &lt;=&gt; PHP <code>(bool) [true|false]</code></li>
+                          <li class="fragment">Pg timestamps &lt;=&gt; <code>DateTime</code> instances</li>
+                          <li class="fragment">Pg intervals &lt;=&gt; <code>DateInterval</code> instances</li>
+                          <li class="fragment">Pg ranges &lt;=&gt; Own range instances</li>
+                          <li class="fragment">Pg arrays &lt;=&gt; PHP arrays with converted content</li>
+                          <li class="fragment">Easy to overload</li>
+                        </ul>
+                      </p>
+                  </section>
+                  <section>
+                    <h3>Adding converters</h3>
                     <p>
                       <ul style="list-style-type: none;">
-                          <li>&#10149; boolean, bitchar, bitvar</li>
-                          <li>&#10149; strings, uuid, xml, json, inet</li>
-                          <li>&#10149; numbers, timestamps with time zone, intervals</li>
-                          <li>&#10149; integer and timestamps ranges</li>
-                          <li>&#10149; point, circle, segment, box, polygon</li>
-                          <li>&#10149; HStore, LTree, ts_vector, bytea</li>
-                          <li>&#10149; custom types, objects</li>
-                          <li>&#10149; arrays of all the types above</li>
-                          <li>&#10149; <font color="red">Enter your type here</font></li>
+                        <li>Point: <code>'(1,1)'</code></li>
+                        <li class="fragment"><code><pre class="vim"><span class="Operator">$</span><span class="Identifier">database</span><span class="Structure">-&gt;</span>registerConverter<span class="Special">(</span>
+    '<span class="String">Point</span>',
+    <span class="Define">new</span> PgPoint<span class="Special">()</span>,
+    <span class="Special">[</span>'<span class="String">point</span>'<span class="Special">])</span>;</pre></code></li>
+                        <li class="fragment">PHP: <code>\Pomm\Type\Point</code> instance</li>
+                        <li class="fragment"><code><pre class="vim"><span class="Operator">$</span><span class="Identifier">a</span><span class="Structure">-&gt;</span>coords<span class="Structure">-&gt;</span>x</pre></code></li>
                       </ul>
                     </p>
-                </section>
-                <section>
-                    <h3>Pomm's converters</h3>
+                  </section>
+                  <section>
+                    <h3>Domains &amp; subtypes</h3>
                     <p>
                       <ul style="list-style-type: none;">
-                          <li>&#10149; boolean, <strike>bitchar, bitvar</strike></li>
-                          <li>&#10149; strings, uuid, xml, json, inet</li>
-                          <li>&#10149; numbers, timestamps with time zone, intervals</li>
-                          <li>&#10149; integer and timestamps, ranges</li>
-                          <li>&#10149; point, circle, segment, <strike>box, polygon</strike></li>
-                          <li>&#10149; HStore, LTree, ts_vector, bytea</li>
-                          <li>&#10149; custom types, objects</li>
-                          <li>&#10149; arrays of all the types above</li>
-                          <li>&#10149; <font color="red">Enter your type here</font></li>
+                        <li><code><pre class="vim">
+<span class="Statement">CREATE</span> DOMAIN latlong <span class="Special">AS</span> <span class="Type">point</span> <span class="Special">CHECK</span> (
+    value[<span class="Number">0</span>] &lt;= <span class="Number">180</span> <span class="Statement">and</span> value[<span class="Number">0</span>] &gt;= <span class="Number">-180</span> <span class="Statement">and</span>
+    value[<span class="Number">1</span>] &gt;= <span class="Number">-90</span> <span class="Statement">and</span> value[<span class="Number">1</span>] &lt;= <span class="Number">90</span>
+);</pre></code></li>
+                        <li class="fragment"><code><pre class="vim"><span class="Operator">$</span><span class="Identifier">database</span>
+    <span class="Structure">-&gt;</span>registerConverter<span class="Special">(</span>'<span class="String">Point</span>', <span class="Define">new</span> PgPoint<span class="Special">()</span>, <span class="Special">[</span>'<span class="String">point</span>', '<span class="String">public.latlong</span>'<span class="Special">])</span>;</pre></code></li>
                       </ul>
                     </p>
-                </section>
-                <section>
-                    <h3>But types are nothing without</h3>
-                    <h3><small>proper operators</small></h3>
-                    <p>
-                      <ul style="list-style-type: none;">
-                          <li class="fragment"><code><pre>SELECT inet '172.17.0.2' &lt;&lt;  inet '172.16.0.0/12';</pre></code></li>
-                          <li class="fragment"><code><pre>SELECT numrange(1.1,2.2) -|- numrange(2.2,3.3);</pre></code></li>
-                          <li class="fragment"><code><pre>SELECT lseg '((1,-1),(-1,1))' # lseg '((1,1),(-1,-1))';</pre></code></li>
-                          <li class="fragment"><code><pre>SELECT 'Pika chu' ~* '^p.{2}';</pre></code></li>
-                          <li class="fragment"><code><pre>SELECT 2 = ANY(ARRAY[1,2,4])</pre></code></li>
-                      </ul>
-                    </p>
-                </section>
-                <section>
-                    <h3>Use them in your where clauses</h3>
-                    <p><code><pre>$users = $this-&gt;findWhere(
-    "$* = ANY(telephones) OR birthdate &lt;@ tsrange($*, $*, '[]')", 
-    [$tel, $min_date, $max_date]
-    );</pre></code></p>
-                </section>
-                <section>
-                    <h3>Build your where clause</h3>
-                    <p><code><pre>    protected function queryOnPhoneAndBirthdate($tel, $min_age, $max_age)
-    {
-        return Where::create("$* = ANY(telephones)", [$tel])
-            -&gt;orWhere("birthdate &lt;@ tsrange($*, $*, '[]')", [$min_age, $max_age]);
-    }
+                  </section>
 
-    public funtion findSomething($...)
-    {
-        $where = $this-&gt;queryOnPhoneAndBirthdate(...)
-            ->andWhere("activity ~* $*", [$activity]);
-
-        return $this->findWhere($where);
-    }
-                    </pre></code></p>
+                  <section>
+                    <h3>LTree: materialized paths</h3>
                     <p>
+                    Useful to represent flat trees and categories (tags)
                       <ul style="list-style-type: none;">
-                          <li class="fragment">Binds parameters immediately</li>
-                          <li class="fragment">Manages the order for you</li>
-                          <li class="fragment">Respects logical precedence</li>
+                        <li><code><pre class="vim"><span class="Statement">CREATE</span> <span class="Special">EXTENSION</span> ltree;</pre></code></li>
+                        <li>Pg «<code>out.restaurant.italian</code>»</li>
+                        <li>PHP «<code>['out', 'restaurant', 'italian']</code>»</li>
                       </ul>
                     </p>
+                  </section>
+                  <section>
+                    <h3>HStore</h3>
+                    <p>key =&gt; value store
+                      <ul style="list-style-type: none;">
+                        <li><code><pre class="vim"><span class="Statement">CREATE</span> <span class="Special">EXTENSION</span> hstore;</pre></code></li>
+                        <li>Pg «<code>'{"pika" =&gt; "chu", "plop" =&gt; "1" }'</code>»</li>
+                        <li>PHP «<code>["pika" =&gt; "chu", "plop" =&gt; "1" ]</code>»</li>
+                      </ul>
+                    </p>
+                  </section>
+                  <section>
+                      <h3>Objects</h3>
+                      <p>Defining a table in Postgres also means creating a new composite type</p>
+
+                      <code class="fragment"><pre class="vim">
+  <span class="Statement">CREATE</span> <span class="Special">TABLE</span> plop <span class="Special">AS</span> <span class="Statement">SELECT</span> pika, chu <span class="Special">FROM</span>
+  (<span class="Special">VALUES</span> (<span class="String">'a'</span>, <span class="Number">1</span>), (<span class="String">'b'</span>, <span class="Number">2</span>), (<span class="String">'c'</span>, <span class="Number">3</span>)) val (pika, chu);
+
+  <span class="Statement">SELECT</span> pika,chu <span class="Special">FROM</span> plop;
+  ┌──────┬─────┐
+  │ pika │ chu │
+  ├──────┼─────┤
+  │ a    │   1 │
+  │ b    │   2 │
+  │ c    │   3 │
+  └──────┴─────┘
+  (3 lines)
+                      </pre></code>
+                  </section>
+                  <section>
+                      <h3>Objects !</h3>
+                      <p>Defining a table in Postgres also means creating a new composite type</p>
+                      <code><pre class="vim">
+  <span class="Statement">SELECT</span> plop <span class="Special">FROM</span> plop;
+  ┌───────┐
+  │ plop  │
+  ├───────┤
+  │ (a,1) │
+  │ (b,2) │
+  │ (c,3) │
+  └───────┘
+  (3 lines)
+                      </pre></code>
+                  </section>
+                  <section>
+                      <h3>You can use them as any other fields</h3>
+                      <p>Fetch news with their comments</p>
+                      <code><pre class="vim"><span class="Statement">SELECT</span>
+    n.slug,
+    ..., <span class="Comment">-- some fields here</span>
+    <span class="Function">array_agg</span>(c) <span class="Special">AS</span> comments
+  <span class="Special">FROM</span>
+    news n
+      <span class="Function">LEFT</span> <span class="Special">JOIN</span> <span class="Statement">comment</span> c <span class="Special">USING</span> (news_slug)
+  <span class="Special">GROUP</span> <span class="Special">BY</span>
+      n.slug
+  ;
+  </pre></code>
+                  </section>
+                  <section>
+                      <h3>You can use them as any other fields</h3>
+                      <p>Objects mapped to entities can be converted to their related entity.</p>
+                      <code><pre class="vim">
+  <span class="Function">&lt;</span><span class="Statement">ul</span><span class="Function">&gt;</span>
+  {% for comment in article.comments %}
+    <span class="Function">&lt;</span><span class="Statement">li</span><span class="Function">&gt;</span>Posted by {{ comment.author }} ...<span class="Identifier">&lt;/</span><span class="Statement">li</span><span class="Identifier">&gt;</span>
+  {% endfor %}
+  <span class="Identifier">&lt;/</span><span class="Statement">ul</span><span class="Identifier">&gt;</span>
+                      </pre></code>
+                  </section>
+                  <section>
+                      <h3>Build you own types</h3>
+                      <p>To store business complex data</p>
+                      <p>Example: electrical transformer windings.
+                      <ul>
+                          <li>electrical transformers are composed of:</li>
+                          <li>A primary winding</li>
+                          <li>One or more secondary windings</li>
+                      </ul>
+                      </p>
+                      <code><pre class="vim"><span class="Statement">CREATE</span> TYPE winding <span class="Special">AS</span> (voltage <span class="Type">numeric</span>(<span class="Number">5</span>,<span class="Number">1</span>), current <span class="Type">numeric</span>(<span class="Number">5</span>,<span class="Number">3</span>));
+  <span class="Statement">CREATE</span> <span class="Special">TABLE</span> power_supply (
+      <span class="Comment">-- some fields</span>
+  <span class="String">&quot;primary&quot;</span> winding <span class="Statement">NOT</span> <span class="Special">NULL</span>,
+  <span class="String">&quot;secondaries&quot;</span> winding[] <span class="Statement">NOT</span> <span class="Special">NULL</span>,
+      <span class="Comment">-- some fields</span></pre></code>
+                  </section>
+                  <section>
+                      <h3>Create the according converter</h3>
+                      <p>There is a converter for composite types</p>
+                      <code><pre class="vim">
+      <span class="Operator">$</span><span class="Identifier">database</span><span class="Structure">-&gt;</span>registerConverter<span class="Special">(</span>
+          '<span class="String">Winding</span>',
+          <span class="Define">new</span> PgRow<span class="Special">(</span>
+              <span class="Operator">$</span><span class="Identifier">database</span>,
+              <span class="Define">new</span> RowStructure<span class="Special">([</span>'<span class="String">voltage</span>' <span class="Operator">=</span><span class="Operator">&gt;</span> '<span class="String">decimal</span>', '<span class="String">current</span>' <span class="Operator">=</span><span class="Operator">&gt;</span> '<span class="String">decimal</span>'<span class="Special">])</span>
+              <span class="Special">)</span>,
+          <span class="Special">[</span>'<span class="String">transformer.winding</span>'<span class="Special">]</span>
+          <span class="Special">)</span>;
+                      </pre></code>
+                  </section>
+                  <section>
+                      <h3>Composite objects</h3>
+                      <p>So what is inside a <code>PowerSupply</code> entity ?</p>
+                  </section>
+                </section>
+                <section>
+                    <section>
+                        <h2>Query the database</h2>
+                        <div class="fragment">
+                        <h3>Types are nothing without</h3>
+                        <h3>proper operators and functions</h3>
+                        <p><small>yes, Postgres is awesome</small></p>
+                      </div>
+                    </section>
+                    <section>
+                        <h3>Networks</h3>
+                        <p>Does this address belong to this network ?</p>
+                        <code class="fragment"><pre class="vim"><span class="Statement">SELECT</span> <span class="Type">inet</span> <span class="String">'172.17.0.2'</span> &lt;&lt;  <span class="Type">inet</span> <span class="String">'172.16.0.0/12'</span>;</pre></code>
+                        <p class="fragment">Find all computers in a network</p>
+                        <code class="fragment"><pre class="vim"><span class="Operator">$</span><span class="Identifier">computers</span> <span class="Operator">=</span> <span class="Operator">$</span><span class="Identifier">connection</span><span class="Structure">-&gt;</span>getMapFor<span class="Special">(</span>'<span class="String">Db\Network\Computer</span>'<span class="Special">)</span>
+    <span class="Structure">-&gt;</span>findWhere<span class="Special">(</span>'<span class="String">ip_address &lt;&lt; $*</span>', <span class="Special">[</span><span class="Identifier">$network</span><span class="Special">])</span> ;</pre></code>
+                    </section>
+                    <section>
+                        <h3>Ranges</h3>
+                          <p>Are those two ranges contiguous ?</p>
+                          <code class="fragment"><pre class="vim"><span class="Statement">SELECT</span> numrange(<span class="Number">1.1</span>, <span class="Number">2.2</span>) -|- numrange(<span class="Number">2.2</span>, <span class="Number">3.3</span>);</pre></code>
+                          <p class="fragment">What's the next TV program after this one ?</p>
+                          <code class="fragment"><pre class="vim">
+<span class="Operator">$</span><span class="Identifier">programs</span> <span class="Operator">=</span> <span class="Operator">$</span><span class="Identifier">connection</span><span class="Structure">-&gt;</span>getMapFor<span class="Special">(</span>'<span class="String">Db\App\Program</span>'<span class="Special">)</span>
+    <span class="Structure">-&gt;</span>findWhere<span class="Special">(</span>&quot;<span class="String">hours -|- tsrange($*, null) and channel = $*</span>&quot;, <span class="Special">[</span><span class="Operator">$</span><span class="Identifier">end_hour</span>, <span class="Operator">$</span><span class="Identifier">channel</span><span class="Special">])</span>
+;
+                          </pre></code>
+                    </section>
+                    <section>
+                        <h3>Geometry</h3>
+                          <p>What is the crosspoint of these two segments ?</p>
+                          <code class="fragment"><pre class="vim"><span class="Statement">SELECT</span> <span class="Type">lseg</span> <span class="String">'((1,-1),(-1,1))'</span> # <span class="Type">lseg</span> <span class="String">'((1,1),(-1,-1))'</span>;</pre></code>
+                          <p class="fragment">Btw, are those two segments perpendicular ?</p>
+                          <code class="fragment"><pre class="vim"><span class="Statement">SELECT</span> <span class="Type">lseg</span> <span class="String">'((1,-1),(-1,1))'</span> ?-| <span class="Type">lseg</span> <span class="String">'((1,1),(-1,-1))'</span>;</pre></code>
+                    </section>
+                    <section>
+                        <h3>Geometry</h3>
+                          <p>A bit more useful, distance between two points</p>
+                          <code class="fragment"><pre class="vim"><span class="Statement">SELECT</span>  <span class="Type">point</span> <span class="String">'(0,0)'</span> &lt;-&gt; <span class="Type">point</span> <span class="String">'(1,1)'</span>;</pre></code>
+                    </section>
+                    <section>
+                        <h3>Posix regular expressions</h3>
+                        <p>Case insensitive pattern matching</p>
+                        <code class="fragment"><pre class="vim"><span class="Statement">SELECT</span> <span class="String">'Pika chu'</span> ~* <span class="String">'^p.{2}'</span>;</pre></code>
+                        <p class="fragment">All movies with «batman» or «batgirl»</p>
+                        <code class="fragment"><pre class="vim">
+<span class="Operator">$</span><span class="Identifier">movies</span> <span class="Operator">=</span> <span class="Operator">$</span><span class="Identifier">connection</span><span class="Structure">-&gt;</span>getMapFor<span class="Special">(</span>'<span class="String">Db\Cinema\Movie</span>'<span class="Special">)</span>
+    <span class="Structure">-&gt;</span>findWhere<span class="Special">(</span>&quot;<span class="String">title ~* $*</span>&quot;, <span class="Special">[</span>'<span class="String">bat(man|girl)</span>'<span class="Special">])</span>
+;
+</pre></code>
+                    </section>
+                    <section>
+                        <h3>Arrays</h3>
+                        <p>Element searching</p>
+                        <code class="fragment"><pre class="vim"><span class="Statement">SELECT</span> <span class="Number">2</span> = <span class="Statement">ANY</span>(<span class="Special">ARRAY</span>[<span class="Number">1</span>, <span class="Number">2</span>, <span class="Number">4</span>]);</pre></code>
+                        <p class="fragment">Find a computer from one of its IP addresses</p>
+                        <code class="fragment"><pre class="vim"><span class="Operator">$</span><span class="Identifier">computers</span> <span class="Operator">=</span> <span class="Operator">$</span><span class="Identifier">connection</span><span class="Structure">-&gt;</span>getMapFor<span class="Special">(</span>'<span class="String">Db\Network\Computer</span>'<span class="Special">)</span>
+    <span class="Structure">-&gt;</span>findWhere<span class="Special">(</span>&quot;<span class="String">$* = ANY(interfaces)</span>&quot;, <span class="Special">[</span><span class="Operator">$</span><span class="Identifier">interface</span><span class="Special">])</span>
+;</pre></code>
+
+                    </section>
                 </section>
                 <section>
                     <h3>HStore: key =&gt; value store</h3>
@@ -205,7 +384,6 @@
                       <ul style="list-style-type: none;">
                           <li class="fragment">Optional fields</li>
                           <li class="fragment">I18N: <code><pre>SELECT label-&gt;en AS label FROM product</pre></code></li>
-                          <li class="fragment">Converted to PHP associative array</li>
                       </ul>
                     </p>
                 </section>
@@ -363,7 +541,7 @@ public function deleteController($student_id)
 				center: true,
 
 				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
-				transition: Reveal.getQueryHash().transition || 'page', // default/cube/page/concave/zoom/linear/fade/none
+				transition: Reveal.getQueryHash().transition || 'fade', // default/cube/page/concave/zoom/linear/fade/none
 
 				// Parallax scrolling
 				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
